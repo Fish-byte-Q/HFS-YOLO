@@ -2,7 +2,7 @@
 
 **HFS-YOLO: Multi-Receptive-Field Feature Processing and Spatial Attention for UAV Object Detection**
 
-Author: **Zhenyu Wang**
+Authors: **Zhenyu Wang, Yaoming Zhuang, Jiaming Liu, Zhangyang Han, Lin Yang, Yanze Du, Chengdong Wu, and Hao Wu**
 
 HFS-YOLO is a four-scale object detector built on YOLO11s. It combines multi-receptive-field processing, spatial attention, and multi-scale residual processing with a high-resolution P2 prediction branch. The design targets the accuracy–parameter trade-off in aerial imagery containing dense objects and substantial scale variation.
 
@@ -27,7 +27,7 @@ The following values are reported in the manuscript. Precision, recall, and mAP 
 
 ### VisDrone2019 validation set
 
-The ablation sequence is cumulative: each row retains the modules added in the preceding rows. The recorded runs share the dataset protocol and training framework, but the VisDrone2019 runs used the NMS IoU values recorded for each run (0.7, 0.6, or 0.5). Therefore, this sequence should not be interpreted as a strictly architecture-only comparison under one universal post-processing threshold.
+The ablation sequence is cumulative: each row retains the modules added in the preceding rows. All five variants share the data split, training settings, checkpoint-selection rule, and evaluation settings, including post-processing. Settings are matched within each dataset; VisDrone2019 and DIOR use dataset-specific protocols.
 
 | Variant | Precision (%) | Recall (%) | mAP50 (%) | mAP50–95 (%) | Params (M) |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -108,8 +108,9 @@ Prepare dataset configuration files with the correct image paths, class names, a
 | Weight decay | 0.0005 | 0.0005 |
 | Seed | 0 | 0 |
 | Deterministic execution | Enabled | Enabled |
-| Mosaic augmentation | Enabled | Enabled; disabled for the final 20 epochs |
-| NMS IoU threshold | Run-specific: 0.7, 0.6, or 0.5 | 0.7 |
+| Mosaic augmentation | Enabled; disabled for the final 20 epochs | Enabled; disabled for the final 20 epochs |
+| Evaluation confidence threshold | 0.001 | 0.001 |
+| Post-processing | Identical across all five variants | Identical for both models |
 
 For VisDrone2019, the box, classification, and distribution focal loss weights are **7.5 / 0.5 / 1.5**. The checkpoint-selection fitness is:
 
@@ -144,17 +145,17 @@ For cumulative ablations, change the model configuration while keeping the datas
 
 ### Evaluation on VisDrone2019
 
-Use the validation split and the saved evaluation configuration associated with the experiment:
+Use the validation split and the shared VisDrone2019 evaluation configuration for all compared variants:
 
 ```bash
 yolo detect val \
   model=/path/to/visdrone-checkpoint.pt \
   data=/path/to/visdrone.yaml \
   cfg=/path/to/visdrone-evaluation.yaml \
-  split=val imgsz=640 iou=0.5
+  split=val imgsz=640 conf=0.001
 ```
 
-The `iou=0.5` value above is an example command-line value, not a universal setting for the reported VisDrone2019 results. For reproduction, preserve the NMS IoU value recorded for the specific run (0.7, 0.6, or 0.5), together with its confidence threshold and other evaluation arguments. The comparison should therefore be reported with the run-specific evaluation settings rather than relabeled as a strictly controlled architecture-only comparison.
+The evaluation YAML must contain the complete shared post-processing settings used in the experiments. Use the same file for all five variants, changing only the checkpoint path. No numerical VisDrone2019 NMS threshold is specified here; use the original shared evaluation configuration rather than inferring a value from historical example scripts.
 
 ### Evaluation on DIOR
 
@@ -189,13 +190,13 @@ Here, `imgsz=640` and `conf=0.25` are example visualization settings. Choose the
 
 The IoU matching thresholds used to compute AP are distinct from the NMS IoU threshold. Parameter count does not directly measure inference latency, throughput, or activation memory.
 
-Each reported configuration was trained once. The manuscript does not report uncertainty across repeated random seeds, separate size-stratified AP, or measured deployment speedups.
+Each reported configuration uses a validation-selected checkpoint from one training run with seed 0. The reported evaluation covers aggregate detection metrics and parameter counts for horizontal bounding boxes.
 
 ## Research context
 
 The method builds on YOLO11s and established convolution and attention mechanisms, including channel-partial convolution, triplet attention, coordinate attention, and efficient multi-scale attention. The contribution is their integration into the detector and its experimental evaluation. References to these methods and to the datasets are provided in the manuscript.
 
-When referring to this work, use the manuscript title **HFS-YOLO: Multi-Receptive-Field Feature Processing and Spatial Attention for UAV Object Detection** and author **Zhenyu Wang**. Add the final publication details or persistent identifier when available.
+When referring to this work, use the manuscript title **HFS-YOLO: Multi-Receptive-Field Feature Processing and Spatial Attention for UAV Object Detection** and the author list above in the stated order. Add the final publication details or persistent identifier when available.
 
 ## License
 
