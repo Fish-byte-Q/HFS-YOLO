@@ -91,7 +91,7 @@ Download the datasets through their providers and follow the associated access a
 | VisDrone2019 detection subset | 6,471 | 548 | Not used for the reported comparison | **Validation** |
 | DIOR | 5,862 | 5,863 | 11,738 | **Test** |
 
-For DIOR, optimization uses only the training split. The validation split is used for checkpoint selection, and the selected checkpoint is evaluated once on the test split.
+For DIOR, optimization uses only the training split. The validation split is used for checkpoint selection, and evaluation is performed on the held-out test split.
 
 Prepare dataset configuration files with the correct image paths, class names, and split definitions. Preserve the dataset's class ordering and the published split identifiers. For DIOR test evaluation, the dataset configuration must explicitly define the `test` split. The experiments use horizontal bounding boxes.
 
@@ -106,8 +106,6 @@ Prepare dataset configuration files with the correct image paths, class names, a
 | Initial learning rate | 0.01 | 0.01 |
 | Momentum | 0.937 | 0.937 |
 | Weight decay | 0.0005 | 0.0005 |
-| Seed | 0 | 0 |
-| Deterministic execution | Enabled | Enabled |
 | Mosaic augmentation | Enabled; disabled for the final 20 epochs | Enabled; disabled for the final 20 epochs |
 | Evaluation confidence threshold | 0.001 | 0.001 |
 | Post-processing | Identical across all five variants | Identical for both models |
@@ -118,7 +116,7 @@ For VisDrone2019, the box, classification, and distribution focal loss weights a
 fitness = 0.1 × mAP50 + 0.9 × mAP50–95
 ```
 
-Both metrics are expressed as fractions when computing fitness. Precision, recall, and both mAP values in a reported row come from the same selected epoch.
+Both metrics are expressed as fractions when computing fitness.
 
 Additional DIOR settings include initialization from pretrained YOLO11s weights, cosine learning-rate decay, a final learning-rate fraction of 0.01, and a nominal batch size of 64. Warm-up lasts five epochs, with momentum 0.8 and bias learning rate 0.1. Early stopping is disabled, and checkpoints are retained at 25-epoch intervals in addition to the best and final checkpoints.
 
@@ -190,7 +188,7 @@ Here, `imgsz=640` and `conf=0.25` are example visualization settings. Choose the
 
 The IoU matching thresholds used to compute AP are distinct from the NMS IoU threshold. Parameter count does not directly measure inference latency, throughput, or activation memory.
 
-Each reported configuration uses a validation-selected checkpoint from one training run with seed 0. The reported evaluation covers aggregate detection metrics and parameter counts for horizontal bounding boxes.
+The reported evaluation covers aggregate detection metrics and parameter counts for horizontal bounding boxes.
 
 ## Research context
 
