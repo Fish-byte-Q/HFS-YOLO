@@ -1,12 +1,12 @@
 # HFS-YOLO
 
-**HFS-YOLO: Multi-Receptive-Field Feature Processing and Spatial Attention for UAV Object Detection**
+**HFS-YOLO: Detail-Preserving Multi-Scale Feature Processing with Spatial Attention for UAV Object Detection**
 
 Authors: **Zhenyu Wang, Yaoming Zhuang, Jiaming Liu, Zhangyang Han, Lin Yang, Yanze Du, Chengdong Wu, and Hao Wu**
 
 HFS-YOLO is a four-scale object detector built on YOLO11s. It combines multi-receptive-field processing, spatial attention, and multi-scale residual processing with a high-resolution P2 prediction branch. The design targets the accuracy–parameter trade-off in aerial imagery containing dense objects and substantial scale variation.
 
-On the **VisDrone2019 validation set**, HFS-YOLO achieves **45.5% mAP50** and **26.9% mAP50–95** with **8.81 million parameters**. Under matched experimental settings on the **DIOR test set**, it achieves **83.2% mAP50** and **62.9% mAP50–95**.
+On the **VisDrone2019-DET test-dev set**, HFS-YOLO achieves **45.5% mAP50** and **26.9% mAP50–95** with **8.81 million parameters**. Under matched experimental settings on the **DIOR test set**, it achieves **83.2% mAP50** and **62.9% mAP50–95**.
 
 ## Method
 
@@ -25,7 +25,7 @@ The manuscript uses `NewConvBlock` and `NewAttention` as the implementation name
 
 The following values are reported in the manuscript. Precision, recall, and mAP are percentages. **Params (M)** denotes millions of model parameters, not model file size in megabytes.
 
-### VisDrone2019 validation set
+### VisDrone2019-DET test-dev set
 
 The ablation sequence is cumulative: each row retains the modules added in the preceding rows. All five variants share the data split, training settings, checkpoint-selection rule, and evaluation settings, including post-processing. Settings are matched within each dataset; VisDrone2019 and DIOR use dataset-specific protocols.
 
@@ -88,10 +88,10 @@ Download the datasets through their providers and follow the associated access a
 
 | Dataset | Training images | Validation images | Test images | Reported evaluation split |
 | --- | ---: | ---: | ---: | --- |
-| VisDrone2019 detection subset | 6,471 | 548 | Not used for the reported comparison | **Validation** |
+| VisDrone2019 detection subset | 6,471 | 548 | 1,610 (test-dev) | **Test-dev** |
 | DIOR | 5,862 | 5,863 | 11,738 | **Test** |
 
-For DIOR, optimization uses only the training split. The validation split is used for checkpoint selection, and evaluation is performed on the held-out test split.
+For both datasets, optimization uses the training split and checkpoint selection uses the validation split. The reported VisDrone2019 results use test-dev; the DIOR results use its held-out test split.
 
 Prepare dataset configuration files with the correct image paths, class names, and split definitions. Preserve the dataset's class ordering and the published split identifiers. For DIOR test evaluation, the dataset configuration must explicitly define the `test` split. The experiments use horizontal bounding boxes.
 
@@ -143,14 +143,14 @@ For cumulative ablations, change the model configuration while keeping the datas
 
 ### Evaluation on VisDrone2019
 
-Use the validation split and the shared VisDrone2019 evaluation configuration for all compared variants:
+Use the test-dev split and the shared VisDrone2019 evaluation configuration for all compared variants, after checkpoint selection on the validation split:
 
 ```bash
 yolo detect val \
   model=/path/to/visdrone-checkpoint.pt \
   data=/path/to/visdrone.yaml \
   cfg=/path/to/visdrone-evaluation.yaml \
-  split=val imgsz=640 conf=0.001
+  split=test imgsz=640 conf=0.001
 ```
 
 The evaluation YAML must contain the complete shared post-processing settings used in the experiments. Use the same file for all five variants, changing only the checkpoint path. No numerical VisDrone2019 NMS threshold is specified here; use the original shared evaluation configuration rather than inferring a value from historical example scripts.
@@ -194,7 +194,7 @@ The reported evaluation covers aggregate detection metrics and parameter counts 
 
 The method builds on YOLO11s and established convolution and attention mechanisms, including channel-partial convolution, triplet attention, coordinate attention, and efficient multi-scale attention. The contribution is their integration into the detector and its experimental evaluation. References to these methods and to the datasets are provided in the manuscript.
 
-When referring to this work, use the manuscript title **HFS-YOLO: Multi-Receptive-Field Feature Processing and Spatial Attention for UAV Object Detection** and the author list above in the stated order. Add the final publication details or persistent identifier when available.
+When referring to this work, use the manuscript title **HFS-YOLO: Detail-Preserving Multi-Scale Feature Processing with Spatial Attention for UAV Object Detection** and the author list above in the stated order. Add the final publication details or persistent identifier when available.
 
 ## License
 
